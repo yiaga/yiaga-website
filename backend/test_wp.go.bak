@@ -1,0 +1,50 @@
+package main
+
+import (
+	"encoding/xml"
+	"fmt"
+	"os"
+)
+
+type RSS struct {
+	Channel Channel `xml:"channel"`
+}
+
+type Channel struct {
+	Items []Item `xml:"item"`
+}
+
+type Item struct {
+	Title    string `xml:"title"`
+	PostType string `xml:"http://wordpress.org/export/1.2/ post_type"`
+	Content1 string `xml:"http://purl.org/rss/1.0/modules/content/ encoded"`
+	Content2 string `xml:"encoded"`
+	Content3 string `xml:"content:encoded"`
+}
+
+func mains() {
+	xmlFile, _ := os.Open("../yiagaafrica.WordPress.2026-03-09.xml")
+	var rss RSS
+	xml.NewDecoder(xmlFile).Decode(&rss)
+
+	for _, item := range rss.Channel.Items {
+		if item.PostType == "post" {
+			fmt.Printf("Title: %s\n", item.Title)
+			fmt.Printf("Content1 len: %d\n", len(item.Content1))
+			fmt.Printf("Content2 len: %d\n", len(item.Content2))
+			fmt.Printf("Content3 len: %d\n", len(item.Content3))
+			if len(item.Content1) > 0 || len(item.Content2) > 0 {
+				fmt.Printf("Content1 Snippet: %s\n", item.Content1[:min(50, len(item.Content1))])
+				fmt.Printf("Content2 Snippet: %s\n", item.Content2[:min(50, len(item.Content2))])
+				break
+			}
+		}
+	}
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
