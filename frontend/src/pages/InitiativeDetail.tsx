@@ -59,13 +59,14 @@ const InitiativeDetail = () => {
   const textColorClass = 'text-primary';
   const borderColorClass = 'border-primary';
 
-  // Mock gallery images based on initiative image
-  const galleryImages = [
-    initiative.image,
-    "https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?w=800&q=80",
-    "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=80",
-    "https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=800&q=80",
-  ];
+  // Use initiative gallery if available, otherwise fallback
+  const galleryImages = initiative.gallery && initiative.gallery.length > 0 
+    ? initiative.gallery 
+    : [
+        "https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?w=800&q=80",
+        "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=80",
+        "https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=800&q=80",
+      ];
 
   return (
     <PageLayout>
@@ -194,15 +195,21 @@ const InitiativeDetail = () => {
 
               {/* Image Grid / Gallery - Integrated in content */}
               <div className="mt-16 grid grid-cols-2 gap-4">
-                <div className="rounded-2xl overflow-hidden h-64 shadow-lg">
-                  <img src={galleryImages[1]} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" alt="Gallery 1" />
-                </div>
-                <div className="rounded-2xl overflow-hidden h-64 shadow-lg">
-                  <img src={galleryImages[2]} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" alt="Gallery 2" />
-                </div>
-                <div className="col-span-2 rounded-2xl overflow-hidden h-80 shadow-lg">
-                  <img src={galleryImages[3]} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" alt="Gallery 3" />
-                </div>
+                {galleryImages[0] && (
+                  <div className="rounded-2xl overflow-hidden h-64 shadow-lg">
+                    <img src={galleryImages[0]} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" alt="Gallery 1" />
+                  </div>
+                )}
+                {galleryImages[1] && (
+                  <div className="rounded-2xl overflow-hidden h-64 shadow-lg">
+                    <img src={galleryImages[1]} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" alt="Gallery 2" />
+                  </div>
+                )}
+                {galleryImages[2] && (
+                  <div className="col-span-2 rounded-2xl overflow-hidden h-80 shadow-lg">
+                    <img src={galleryImages[2]} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" alt="Gallery 3" />
+                  </div>
+                )}
               </div>
 
               <div className="mt-16 p-10 rounded-3xl bg-muted border-l-8 border-primary italic text-xl text-foreground font-display">

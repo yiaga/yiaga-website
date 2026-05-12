@@ -68,6 +68,7 @@ export interface Initiative {
     status: string;
     location: string;
     image: string;
+    gallery: string[];
     activities: string[];
     stats: { label: string; value: string; }[];
     color: string;
