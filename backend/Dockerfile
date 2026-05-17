@@ -17,7 +17,6 @@ FROM gcr.io/distroless/base-debian12
 WORKDIR /app
 
 COPY --from=builder /app/yiaga-backend .
-COPY --from=builder /app/.env.production ./.env
 
 EXPOSE 8080
 
