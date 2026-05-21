@@ -141,6 +141,8 @@ const Resources = () => {
                       a.click();
                       document.body.removeChild(a);
                       URL.revokeObjectURL(blobUrl);
+                      // Update download count in "Resources" table if download is successful
+                      const updated = await api.incrementDownloadCount(resource.id);
                     } catch {
                       // Fallback: open in new tab if fetch fails (e.g. CORS blocked)
                       window.open(resource.file_url, '_blank', 'noopener,noreferrer');
@@ -178,8 +180,12 @@ const Resources = () => {
                         {resource.title}
                       </h3>
 
-                      <p className="text-muted-foreground text-sm leading-relaxed mb-4 line-clamp-3">
+                      <p className="text-muted-foreground text-sm leading-relaxed line-clamp-3">
                         {resource.description?.replace(/<[^>]*>/g, '')}
+                      </p>
+
+                      <p className="text-muted-foreground text-sm leading-relaxed mb-4 line-clamp-3">
+                        <span className="text-primary" style={{fontSize:"10px"}}>{resource.downloads || "0"} total downloads</span>
                       </p>
 
                       <div className="flex items-center justify-between text-sm text-muted-foreground border-t border-border pt-4 mt-auto">

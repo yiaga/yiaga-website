@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+	"fmt"
+  "strings"
 
 	"github.com/go-chi/chi/v5"
 
@@ -107,6 +109,38 @@ func UpdateResource(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	respondJSON(w, existing)
+}
+
+func IncrementResourceDownload(w http.ResponseWriter, r *http.Request) {
+    id := chi.URLParam(r, "id")
+
+    var existing models.Resource
+    if err := database.DB.First(&existing, id).Error; err != nil {
+        http.Error(w, "Resource not found", http.StatusNotFound)
+        return
+    }
+
+    // Parse current count, increment, reformat
+    countStr := strings.ReplaceAll(existing.Downloads, ",", "")
+    count, err := strconv.ParseFloat(countStr, 64)
+    if err != nil {
+        count = 0
+    }
+    count++
+
+    // Reformat to match your "2.5K" style
+    if count >= 1000 {
+        existing.Downloads = fmt.Sprintf("%.1fK", count/1000)
+    } else {
+        existing.Downloads = fmt.Sprintf("%.0f", count)
+    }
+
+    if err := database.DB.Model(&existing).Update("downloads", existing.Downloads).Error; err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+
+    respondJSON(w, existing)
 }
 
 func CreateResource(w http.ResponseWriter, r *http.Request) {

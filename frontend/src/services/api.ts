@@ -268,15 +268,26 @@ export const api = {
         return await response.json();
     },
 
+    incrementDownloadCount: async (id: string) => {
+        const response = await fetch(`${API_URL}/resources/download/${id}`, {
+            method: 'PUT'
+        });
+        if (!response.ok) {
+            const err = await response.text();
+            throw new Error(err || `Failed to increase download count: ${response.statusText}`);
+        }
+        return response.json(); // return updated resource so the UI can sync
+    },
+
     getJobs: async (all?: boolean, type?: string): Promise<Job[]> => {
         let url = `${API_URL}/jobs`;
         const params = new URLSearchParams();
         if (all) params.append('all', 'true');
         if (type) params.append('type', type);
-        
+
         const queryString = params.toString();
         if (queryString) url += `?${queryString}`;
-        
+
         const response = await fetch(url);
         if (!response.ok) throw new Error("Failed to fetch jobs");
         return await response.json();
