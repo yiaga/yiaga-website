@@ -66,6 +66,7 @@ func SetupRouter() *chi.Mux {
 		// Resources
 		r.Get("/resources", handlers.GetResources)
 		r.Get("/resources/{id}", handlers.GetResourceById)
+		r.Put("/resources/download/{id}", handlers.IncrementResourceDownload)
 
 		// Jobs
 		r.Get("/jobs", handlers.GetJobs)

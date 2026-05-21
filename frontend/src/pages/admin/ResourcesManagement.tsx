@@ -134,7 +134,7 @@ const ResourcesManagement = () => {
         const { url } = await api.uploadFile(file);
         // Estimate size
         const sizeMB = (file.size / (1024 * 1024)).toFixed(1) + ' MB';
-        
+
         // Extract title from filename if current title is empty
         let newTitle = formData.title;
         if (!newTitle) {
@@ -266,6 +266,7 @@ const ResourcesManagement = () => {
                 <th className="px-6 py-4">Type</th>
                 <th className="px-6 py-4">Category</th>
                 <th className="px-6 py-4">File</th>
+                <th className="px-6 py-4">Downloads</th>
                 <th className="px-6 py-4">Actions</th>
               </tr>
             </thead>
@@ -280,6 +281,7 @@ const ResourcesManagement = () => {
                       <Download className="w-3 h-3" /> {res.file_size}
                     </a>
                   </td>
+                  <td className="px-6 py-4">{res.downloads || "0"}</td>
                   <td className="px-6 py-4 flex items-center space-x-2">
                     <Link to={`/resources/${res.slug || res.id}`} target="_blank">
                       <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">

@@ -29,6 +29,30 @@ const ResourceDetail = () => {
     enabled: !!resource // Only fetch related if main resource is loaded
   });
 
+  const handleDownload = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!resource.file_url) return;
+    try {
+      const response = await fetch(resource.file_url);
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      // Derive filename: use title + extension from URL
+      const urlExt = resource.file_url.split('.').pop()?.split('?')[0] || '';
+      a.download = urlExt ? `${resource.title}.${urlExt}` : resource.title || 'resource';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(blobUrl);
+      // Update download count in "Resources" table if download is successful
+      const updated = await api.incrementDownloadCount(resource.id);
+    } catch {
+      // Fallback: open in new tab if fetch fails (e.g. CORS blocked)
+      window.open(resource.file_url, '_blank', 'noopener,noreferrer');
+    }
+  };
+
   if (isLoading) {
     return (
       <PageLayout>
@@ -85,7 +109,7 @@ const ResourceDetail = () => {
                 <div className="w-24 h-24 rounded-2xl bg-primary/10 flex items-center justify-center flex-shrink-0">
                   <Icon className="w-12 h-12 text-primary" />
                 </div>
-                
+
                 <div className="flex-1">
                   <div className="flex flex-wrap gap-2 mb-4">
                     <span className="px-3 py-1 bg-accent text-accent-foreground rounded-full text-xs font-semibold">
@@ -93,6 +117,9 @@ const ResourceDetail = () => {
                     </span>
                     <span className="px-3 py-1 bg-muted text-muted-foreground rounded-full text-xs font-medium">
                       {resource.type}
+                    </span>
+                    <span className="px-3 py-1 bg-muted text-muted-foreground rounded-full text-xs font-medium">
+                      {resource.downloads || "0"} total downloads
                     </span>
                   </div>
 
@@ -106,15 +133,23 @@ const ResourceDetail = () => {
                   </div>
 
                   <div className="prose prose-lg max-w-none text-foreground mb-12">
-                    <div 
+                    <div
                       className="text-muted-foreground leading-relaxed prose prose-sm sm:prose-base dark:prose-invert max-w-none"
                       dangerouslySetInnerHTML={{ __html: resource.description }}
                     />
                   </div>
 
                   {resource.file_url && (
-                    <Button size="lg" className="w-full sm:w-auto font-semibold gap-2 cursor-pointer" asChild>
-                      <a href={resource.file_url} download target="_blank" rel="noopener noreferrer">
+                    <Button onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        handleDownload(e);
+                      }}
+                      size="lg"
+                      className="w-full sm:w-auto font-semibold gap-2 cursor-pointer"
+                      asChild
+                    >
+                      <a href={resource.file_url} download rel="noopener noreferrer">
                         <Download className="w-5 h-5" />
                         Download Resource
                       </a>
