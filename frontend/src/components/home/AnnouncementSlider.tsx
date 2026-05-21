@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Megaphone, Calendar, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
@@ -7,58 +7,41 @@ import { cn } from '@/lib/utils';
 import nvisReport from "@/assets/nvis-report.jpg";
 import ngoSourceEd from "@/assets/ngosource-ed.jpg";
 import discuss from "@/assets/discuss.jpg";
-
-const announcements = [
-  {
-    id: 1,
-    title: "NVIS (National Voting Intentions Survey) Report 1 is released",
-    description: "Our comprehensive survey on national voting intentions is now available. Gain insights into the current political landscape and voter sentiment across the country.",
-    date: "January 28, 2026",
-    link: "#",
-    image: nvisReport,
-  },
-  {
-    id: 2,
-    title: "Youth Civic Engagement Summit 2025",
-    description: "Join us for our annual summit bringing together young leaders from across Africa to discuss civic participation, democratic governance, and community development.",
-    date: "January 15, 2025",
-    link: "#",
-    image: discuss,
-  },
-  {
-    id: 3,
-    title: "Yiaga Africa have acquired ED Certified by NGOsource",
-    description: "We are pleased to announce that Yiaga Africa has achieved Equivalency Determination (ED) certification, further validating our commitment to transparency and global standards.",
-    date: "November 28, 2024",
-    link: "#",
-    image: ngoSourceEd,
-  },
-];
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/services/api";
 
 const AnnouncementSlider = () => {
-  const [data, setData] = useState<any[]>(announcements);
   const [currentSlide, setCurrentSlide] = useState(0);
-  
+
   const { ref, isVisible } = useScrollAnimation({ threshold: 0.2 });
 
-  
+  const { data: announcements = [], isLoading } = useQuery({
+    queryKey: ['announcements'],
+    queryFn: () => api.getAnnouncements()
+  });
+
+  const displayedAnnouncements = useMemo(() => {
+    if (announcements.length <= 5) return announcements;
+    const shuffled = [...announcements].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, 5);
+  }, [announcements]);
 
   useEffect(() => {
-    if (data.length === 0) return;
+    if (displayedAnnouncements.length === 0) return;
     const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % data.length);
+      setCurrentSlide((prev) => (prev + 1) % displayedAnnouncements.length);
     }, 8000);
     return () => clearInterval(timer);
-  }, [data.length]);
+  }, [displayedAnnouncements.length]);
 
-  const nextSlide = () => data.length > 0 && setCurrentSlide((prev) => (prev + 1) % data.length);
-  const prevSlide = () => data.length > 0 && setCurrentSlide((prev) => (prev - 1 + data.length) % data.length);
+  const nextSlide = () => displayedAnnouncements.length > 0 && setCurrentSlide((prev) => (prev + 1) % displayedAnnouncements.length);
+  const prevSlide = () => displayedAnnouncements.length > 0 && setCurrentSlide((prev) => (prev - 1 + displayedAnnouncements.length) % displayedAnnouncements.length);
 
-  if (data.length === 0) {
+  if (displayedAnnouncements.length === 0) {
     return null;
   }
 
-  const current = data[currentSlide];
+  const current = displayedAnnouncements[currentSlide];
 
   return (
     <section
@@ -98,7 +81,7 @@ const AnnouncementSlider = () => {
               <div className="absolute bottom-4 left-4 bg-background/90 backdrop-blur-sm rounded-full px-4 py-2 flex items-center gap-2">
                 <span className="text-2xl font-bold text-primary">{String(currentSlide + 1).padStart(2, '0')}</span>
                 <span className="text-muted-foreground">/</span>
-                <span className="text-muted-foreground">{String(data.length).padStart(2, '0')}</span>
+                <span className="text-muted-foreground">{String(displayedAnnouncements.length).padStart(2, '0')}</span>
               </div>
             </div>
 
@@ -143,7 +126,7 @@ const AnnouncementSlider = () => {
                 </div>
 
                 <div className="flex gap-2">
-                  {data.map((_, index) => (
+                  {displayedAnnouncements.map((_, index) => (
                     <button
                       key={index}
                       onClick={() => setCurrentSlide(index)}
