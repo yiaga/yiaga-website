@@ -115,6 +115,14 @@ const CareersManagement = () => {
     i.department.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const formatDate = (dateString: string): string => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -180,6 +188,7 @@ const CareersManagement = () => {
                       <th className="px-6 py-4 font-medium">Type / Location</th>
                       <th className="px-6 py-4 font-medium">Deadline</th>
                       <th className="px-6 py-4 font-medium">Status</th>
+                      <th className="px-6 py-4 font-medium">Posted</th>
                       <th className="px-6 py-4 font-medium">Actions</th>
                     </tr>
                   </thead>
@@ -209,6 +218,7 @@ const CareersManagement = () => {
                             </span>
                           </div>
                         </td>
+                        <td className="px-6 py-4 text-muted-foreground"><span className="text-xs">{formatDate(job.created_at)}</span></td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2">
                             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDuplicate(job.id)} title="Duplicate Job">
@@ -256,6 +266,7 @@ const CareersManagement = () => {
                       <th className="px-6 py-4 font-medium">Type / Location</th>
                       <th className="px-6 py-4 font-medium">Deadline</th>
                       <th className="px-6 py-4 font-medium">Status</th>
+                      <th className="px-6 py-4 font-medium">Call Date</th>
                       <th className="px-6 py-4 font-medium">Actions</th>
                     </tr>
                   </thead>
@@ -285,6 +296,7 @@ const CareersManagement = () => {
                             </span>
                           </div>
                         </td>
+                        <td className="px-6 py-4 text-muted-foreground"><span className="text-xs">{formatDate(call.created_at)}</span></td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2">
                             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDuplicate(call.id)} title="Duplicate Call">
