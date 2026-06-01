@@ -50,7 +50,8 @@ const AnnouncementSlider = () => {
       className="py-12 bg-gradient-to-r from-secondary/10 via-background to-accent/10 overflow-hidden"
     >
       <div className={cn(
-        "container mx-auto px-4 transition-all duration-700"
+        "container mx-auto px-4 transition-all duration-700",
+        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
       )}>
         {/* Header */}
         <div className="flex items-center justify-center gap-3 mb-8">
@@ -80,7 +81,8 @@ const AnnouncementSlider = () => {
             <div className="grid lg:grid-cols-2 gap-8 items-center">
               {/* Image Column */}
               <div className={cn(
-                "relative aspect-[4/3] rounded-2xl overflow-hidden shadow-lg transition-all duration-500 delay-100"
+                "relative aspect-[4/3] rounded-2xl overflow-hidden shadow-lg transition-all duration-500 delay-100",
+                isVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-12"
               )}>
                 <img
                   src={current.image}
@@ -99,7 +101,8 @@ const AnnouncementSlider = () => {
 
               {/* Content Column */}
               <div className={cn(
-                "space-y-6 transition-all duration-500 delay-200"
+                "space-y-6 transition-all duration-500 delay-200",
+                isVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-12"
               )}>
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Calendar className="w-4 h-4" />
