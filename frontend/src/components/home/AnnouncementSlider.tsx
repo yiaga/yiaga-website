@@ -40,10 +40,13 @@ const AnnouncementSlider = () => {
   const nextSlide = () => displayedAnnouncements.length > 0 && setCurrentSlide((prev) => (prev + 1) % displayedAnnouncements.length);
   const prevSlide = () => displayedAnnouncements.length > 0 && setCurrentSlide((prev) => (prev - 1 + displayedAnnouncements.length) % displayedAnnouncements.length);
 
-  const current = displayedAnnouncements[currentSlide];
-  if (!current) return null;
-
   const isReady = isVisible && displayedAnnouncements.length > 0;
+
+  if (!isLoading && displayedAnnouncements.length === 0) {
+    return null;
+  }
+
+  const current = displayedAnnouncements[currentSlide];
 
   return (
     <section
@@ -64,7 +67,11 @@ const AnnouncementSlider = () => {
         </div>
 
         {/* Slider Content */}
-        {isLoading ? <Loader2 /> :
+        {isLoading ? (
+          <div className="flex justify-center items-center py-24">
+            <Loader2 className="w-10 h-10 animate-spin text-primary" />
+          </div>
+        ) : (
           <div className="relative">
             <div className="grid lg:grid-cols-2 gap-8 items-center">
               {/* Image Column */}
@@ -143,7 +150,7 @@ const AnnouncementSlider = () => {
               </div>
             </div>
           </div>
-        }
+        )}
       </div>
     </section>
   );
