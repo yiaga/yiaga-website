@@ -12,7 +12,7 @@ const AnnouncementSlider = () => {
 
   const { ref, isVisible } = useScrollAnimation({ threshold: 0.2 });
 
-  const { data: announcements = [], isLoading } = useQuery({
+  const { data: announcements = [], isLoading, isError } = useQuery({
     queryKey: ['announcements'],
     queryFn: () => api.getAnnouncements()
   });
@@ -42,10 +42,6 @@ const AnnouncementSlider = () => {
 
   const isReady = isVisible && displayedAnnouncements.length > 0;
 
-  if (!isLoading && displayedAnnouncements.length === 0) {
-    return null;
-  }
-
   const current = displayedAnnouncements[currentSlide];
 
   return (
@@ -71,7 +67,15 @@ const AnnouncementSlider = () => {
           <div className="flex justify-center items-center py-24">
             <Loader2 className="w-10 h-10 animate-spin text-primary" />
           </div>
-        ) : (
+        ) : isError ? (
+          <div className="flex justify-center items-center py-12 text-destructive">
+            <p>Failed to load announcements.</p>
+          </div>
+        ) : displayedAnnouncements.length === 0 ? (
+          <div className="flex justify-center items-center py-12 text-muted-foreground">
+            <p>No recent announcements available.</p>
+          </div>
+        ) : current ? (
           <div className="relative">
             <div className="grid lg:grid-cols-2 gap-8 items-center">
               {/* Image Column */}
@@ -150,7 +154,7 @@ const AnnouncementSlider = () => {
               </div>
             </div>
           </div>
-        )}
+        ) : null}
       </div>
     </section>
   );
