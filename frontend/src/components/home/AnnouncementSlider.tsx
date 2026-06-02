@@ -1,7 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Megaphone, Calendar, ArrowRight, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import { cn } from '@/lib/utils';
 
 import { useQuery } from "@tanstack/react-query";
@@ -9,8 +8,6 @@ import { api } from "@/services/api";
 
 const AnnouncementSlider = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
-
-  const { ref, isVisible } = useScrollAnimation({ threshold: 0.2 });
 
   const { data: announcements = [], isLoading, isError } = useQuery({
     queryKey: ['announcements'],
@@ -40,19 +37,13 @@ const AnnouncementSlider = () => {
   const nextSlide = () => displayedAnnouncements.length > 0 && setCurrentSlide((prev) => (prev + 1) % displayedAnnouncements.length);
   const prevSlide = () => displayedAnnouncements.length > 0 && setCurrentSlide((prev) => (prev - 1 + displayedAnnouncements.length) % displayedAnnouncements.length);
 
-  const isReady = isVisible && displayedAnnouncements.length > 0;
-
   const current = displayedAnnouncements[currentSlide];
 
   return (
     <section
-      ref={ref}
-      className="py-12 bg-gradient-to-r from-secondary/10 via-background to-accent/10 overflow-hidden"
+      className="py-12 bg-gradient-to-r from-secondary/10 via-background to-accent/10 overflow-hidden relative z-10"
     >
-      <div className={cn(
-        "container mx-auto px-4 transition-all duration-700",
-        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-      )}>
+      <div className="container mx-auto px-4">
         {/* Header */}
         <div className="flex items-center justify-center gap-3 mb-8">
           <div className="h-px flex-1 max-w-20 bg-gradient-to-r from-transparent to-secondary" />
@@ -80,16 +71,13 @@ const AnnouncementSlider = () => {
           <div className="relative">
             <div className="grid lg:grid-cols-2 gap-8 items-center">
               {/* Image Column */}
-              <div className={cn(
-                "relative aspect-[4/3] rounded-2xl overflow-hidden shadow-lg transition-all duration-500 delay-100",
-                isVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-12"
-              )}>
+              <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-lg">
                 <img
                   src={current.image}
                   alt={current.title}
                   className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-foreground/40 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-foreground/40 to-transparent pointer-events-none" />
 
                 {/* Slide Counter */}
                 <div className="absolute bottom-4 left-4 bg-background/90 backdrop-blur-sm rounded-full px-4 py-2 flex items-center gap-2">
@@ -100,10 +88,7 @@ const AnnouncementSlider = () => {
               </div>
 
               {/* Content Column */}
-              <div className={cn(
-                "space-y-6 transition-all duration-500 delay-200",
-                isVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-12"
-              )}>
+              <div className="space-y-6">
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Calendar className="w-4 h-4" />
                   <span className="text-sm">{current.date}</span>
@@ -117,10 +102,19 @@ const AnnouncementSlider = () => {
                   {current.description}
                 </p>
 
-                <Button className="group bg-primary hover:bg-primary/90 text-primary-foreground">
-                  Read More
-                  <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
-                </Button>
+                {current.link ? (
+                  <a href={current.link} target="_blank" rel="noopener noreferrer">
+                    <Button className="group bg-primary hover:bg-primary/90 text-primary-foreground">
+                      Read More
+                      <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
+                    </Button>
+                  </a>
+                ) : (
+                  <Button className="group bg-primary hover:bg-primary/90 text-primary-foreground">
+                    Read More
+                    <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
+                  </Button>
+                )}
 
                 {/* Navigation & Dots */}
                 <div className="flex items-center gap-4 pt-4">
