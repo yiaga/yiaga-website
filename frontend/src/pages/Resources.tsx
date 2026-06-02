@@ -128,6 +128,10 @@ const Resources = () => {
                   const handleDownload = async (e: React.MouseEvent) => {
                     e.stopPropagation();
                     if (!resource.file_url) return;
+
+                    // Update download count in "Resources" table on click
+                    const updated = await api.incrementDownloadCount(resource.id);
+
                     try {
                       const response = await fetch(resource.file_url);
                       const blob = await response.blob();
@@ -141,8 +145,6 @@ const Resources = () => {
                       a.click();
                       document.body.removeChild(a);
                       URL.revokeObjectURL(blobUrl);
-                      // Update download count in "Resources" table if download is successful
-                      const updated = await api.incrementDownloadCount(resource.id);
                     } catch {
                       // Fallback: open in new tab if fetch fails (e.g. CORS blocked)
                       window.open(resource.file_url, '_blank', 'noopener,noreferrer');
@@ -185,7 +187,7 @@ const Resources = () => {
                       </p>
 
                       <p className="text-muted-foreground text-sm leading-relaxed mb-4 line-clamp-3">
-                        <span className="text-primary" style={{fontSize:"10px"}}>{resource.downloads || "0"} total downloads</span>
+                        <span className="text-primary" style={{fontSize:"10px"}}>{resource.downloads || "0"} total download{resource.downloads > 1 ? "s" : ""}</span>
                       </p>
 
                       <div className="flex items-center justify-between text-sm text-muted-foreground border-t border-border pt-4 mt-auto">
