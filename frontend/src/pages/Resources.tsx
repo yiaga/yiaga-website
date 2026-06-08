@@ -186,9 +186,9 @@ const Resources = () => {
                         {resource.description?.replace(/<[^>]*>/g, '')}
                       </p>
 
-                      <p className="text-muted-foreground text-sm leading-relaxed mb-4 line-clamp-3">
+                      {/*<p className="text-muted-foreground text-sm leading-relaxed mb-4 line-clamp-3">
                         <span className="text-primary" style={{fontSize:"10px"}}>{resource.downloads || "0"} total download{resource.downloads > 1 ? "s" : ""}</span>
-                      </p>
+                      </p>*/}
 
                       <div className="flex items-center justify-between text-sm text-muted-foreground border-t border-border pt-4 mt-auto">
                         <span>{resource.type}</span>
