@@ -120,9 +120,9 @@ const ResourceDetail = () => {
                     <span className="px-3 py-1 bg-muted text-muted-foreground rounded-full text-xs font-medium">
                       {resource.type}
                     </span>
-                    <span className="px-3 py-1 bg-muted text-muted-foreground rounded-full text-xs font-medium">
+                    {/*<span className="px-3 py-1 bg-muted text-muted-foreground rounded-full text-xs font-medium">
                       {resource.downloads || "0"} total download{resource.downloads > 1 ? "s" : ""}
-                    </span>
+                    </span>*/}
                   </div>
 
                   <h1 className="text-3xl md:text-4xl font-display font-bold text-foreground mb-4">
