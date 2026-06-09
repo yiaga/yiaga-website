@@ -25,3 +25,8 @@ steps:
 
 images:
   - 'gcr.io/$PROJECT_ID/yiaga-frontend:$COMMIT_SHA'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+
