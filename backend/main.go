@@ -15,9 +15,8 @@ import (
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Println("No .env file found or error loading it")
-	}
+	
+	_ = godotenv.Load()
 	dsn := os.Getenv("DATABASE_URL")
 	if dsn == "" {
 		instance := os.Getenv("INSTANCE_CONNECTION_NAME")
