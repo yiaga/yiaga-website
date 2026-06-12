@@ -30,6 +30,15 @@ func Init(dsn string) {
 		log.Fatalf("failed to connect database after retries: %v", err)
 	}
 
+	// Configure connection pooling to avoid connection drops in serverless environments
+	sqlDB, err := DB.DB()
+	if err != nil {
+		log.Fatalf("failed to get underlying sql.DB: %v", err)
+	}
+	sqlDB.SetMaxIdleConns(10)
+	sqlDB.SetMaxOpenConns(50)
+	sqlDB.SetConnMaxLifetime(15 * time.Minute)
+
 	// Auto migrate models
 	err = DB.AutoMigrate(
 		&models.Announcement{},

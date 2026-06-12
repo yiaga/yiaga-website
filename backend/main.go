@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"yiaga-backend/database"
+	"yiaga-backend/handlers"
 	"yiaga-backend/models"
 	"yiaga-backend/routes"
 	"yiaga-backend/seeds"
@@ -55,6 +56,9 @@ func main() {
 			database.DB.Model(&r).Update("slug", models.GenerateSlug(r.Title))
 		}
 	}()
+
+	// Backfill missing PublishedAt and clean bad slugs for BlogPost
+	go handlers.BackfillBlogPosts()
 
 	// Get your router (assumed to be Gin or similar http.Handler)
 	r := routes.SetupRouter()

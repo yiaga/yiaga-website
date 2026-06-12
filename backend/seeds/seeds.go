@@ -328,12 +328,20 @@ func SeedData() {
 		},
 	}
 
-	// Delete existing initiatives to ensure clean slate for order
-	database.DB.Unscoped().Where("1 = 1").Delete(&models.Initiative{})
-
 	for _, i := range initiatives {
-		if err := database.DB.Create(&i).Error; err != nil {
-			log.Printf("Failed to seed initiative '%s': %v\n", i.Title, err)
+		var existing models.Initiative
+		err := database.DB.Unscoped().Where("slug = ?", i.Slug).First(&existing).Error
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			if err := database.DB.Create(&i).Error; err != nil {
+				log.Printf("Failed to seed initiative '%s': %v\n", i.Title, err)
+			}
+		} else if err == nil {
+			// Update existing initiative safely rather than deleting and recreating
+			i.ID = existing.ID
+			i.CreatedAt = existing.CreatedAt
+			if err := database.DB.Save(&i).Error; err != nil {
+				log.Printf("Failed to update seed initiative '%s': %v\n", i.Title, err)
+			}
 		}
 	}
 	log.Println("Database seeded with exact titles, order, and Governance/Democracy categories")

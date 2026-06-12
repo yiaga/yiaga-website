@@ -145,7 +145,7 @@ export interface InternshipApplication {
     created_at: string;
 }
 
-const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api";
+const API_URL = import.meta.env.VITE_API_BASE_URL || (import.meta.env.PROD ? "/api" : "http://localhost:8080/api");
 console.log("[API] Using base URL:", API_URL);
 
 

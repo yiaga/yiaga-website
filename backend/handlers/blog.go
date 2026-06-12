@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"regexp"
 	"strings"
@@ -49,8 +50,18 @@ func GetBlogs(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, result.Error.Error(), http.StatusInternalServerError)
 		return
 	}
-	// Auto-fix legacy data: Ensure PublishedAt is set for sorting
-	// Auto-fix legacy data: Ensure PublishedAt is set and Slugs are clean
+
+	respondJSON(w, posts)
+}
+
+// BackfillBlogPosts handles legacy data cleanup (PublishedAt date and clean slugs) on startup
+func BackfillBlogPosts() {
+	var posts []models.BlogPost
+	if err := database.DB.Find(&posts).Error; err != nil {
+		log.Printf("Failed to fetch blog posts for backfilling: %v\n", err)
+		return
+	}
+
 	for i := range posts {
 		needsSave := false
 
@@ -85,21 +96,16 @@ func GetBlogs(w http.ResponseWriter, r *http.Request) {
 		if isBadSlug {
 			reg, _ := regexp.Compile("[^a-zA-Z0-9 ]+")
 			slugTitle := reg.ReplaceAllString(posts[i].Title, "")
-			// Use ID or Unix time to ensure uniqueness. Using ID helps stability if we run this often.
-			// However, for consistency with creation, let's use a unique suffix.
 			posts[i].Slug = strings.ToLower(strings.ReplaceAll(slugTitle, " ", "-")) + "-" + fmt.Sprintf("%d", time.Now().UnixNano())
 			needsSave = true
 		}
 
 		if needsSave {
-			database.DB.Save(&posts[i])
+			if err := database.DB.Save(&posts[i]).Error; err != nil {
+				log.Printf("Failed to backfill blog post '%s': %v\n", posts[i].Title, err)
+			}
 		}
 	}
-	// Re-sort slice manually or trust next refresh.
-	// Since this runs on read, repeated calls fix it.
-	// To ensure immediate order, we can just let the frontend re-query or user refresh.
-
-	respondJSON(w, posts)
 }
 
 func GetBlogBySlug(w http.ResponseWriter, r *http.Request) {
