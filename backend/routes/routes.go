@@ -55,9 +55,10 @@ func SetupRouter() *chi.Mux {
 		r.Get("/blogs/check-slug", handlers.CheckSlugUniqueness)
 		r.Get("/blogs/{slug}", handlers.GetBlogBySlug)
 		r.Get("/blogs/id/{id}", handlers.GetBlogById)
-		
+
 		// SEO endpoint for crawlers
-		r.Get("/seo/blogs/{slug}", handlers.GetSEOForBlog)
+		r.Get("/seo/blogs/{slug}", handlers.GetSEOForPost)
+		r.Get("/seo/news/{slug}", handlers.GetSEOForPost)
 
 		// CMS - Hero
 		r.Get("/content/hero/{page}", handlers.GetHeroContent)

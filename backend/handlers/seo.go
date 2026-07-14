@@ -11,15 +11,15 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-// GetSEOForBlog serves a minimal HTML page with Open Graph and Twitter Card tags for a blog post.
+// GetSEOForPost serves a minimal HTML page with Open Graph and Twitter Card tags for a blog or news post.
 // This is used by social media crawlers.
-func GetSEOForBlog(w http.ResponseWriter, r *http.Request) {
+func GetSEOForPost(w http.ResponseWriter, r *http.Request) {
 	slug := chi.URLParam(r, "slug")
 
 	var blog models.BlogPost
 	if err := database.DB.Where("slug = ?", slug).First(&blog).Error; err != nil {
-		// If blog not found, return a generic fallback or 404
-		http.Error(w, "Blog not found", http.StatusNotFound)
+		// If post not found, return a generic fallback or 404
+		http.Error(w, "Post not found", http.StatusNotFound)
 		return
 	}
 
@@ -29,7 +29,7 @@ func GetSEOForBlog(w http.ResponseWriter, r *http.Request) {
 	if description == "" {
 		description = "Yiaga Africa is a non-profit civic hub dedicated to promoting democratic governance, human rights, and civic participation across Africa."
 	}
-	
+
 	image := blog.Image
 	if image == "" {
 		image = "https://yiaga.org/logo.png" // Fallback image
@@ -38,6 +38,9 @@ func GetSEOForBlog(w http.ResponseWriter, r *http.Request) {
 	}
 
 	url := "https://yiaga.org/blogs/" + slug
+	if blog.Type == "news" {
+		url = "https://yiaga.org/news/" + slug
+	}
 
 	// Generate raw HTML with only the head and meta tags
 	html := fmt.Sprintf(`<!doctype html>
