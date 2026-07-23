@@ -59,6 +59,8 @@ func SetupRouter() *chi.Mux {
 		// SEO endpoint for crawlers
 		r.Get("/seo/blogs/{slug}", handlers.GetSEOForPost)
 		r.Get("/seo/news/{slug}", handlers.GetSEOForPost)
+		r.Get("/seo/resources/{slug}", handlers.GetSEOForPost)
+		r.Get("/seo/initiatives/{slug}", handlers.GetSEOForPost)
 
 		// CMS - Hero
 		r.Get("/content/hero/{page}", handlers.GetHeroContent)
