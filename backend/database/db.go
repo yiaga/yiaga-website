@@ -35,9 +35,10 @@ func Init(dsn string) {
 	if err != nil {
 		log.Fatalf("failed to get underlying sql.DB: %v", err)
 	}
-	sqlDB.SetMaxIdleConns(10)
-	sqlDB.SetMaxOpenConns(50)
-	sqlDB.SetConnMaxLifetime(15 * time.Minute)
+	sqlDB.SetMaxIdleConns(2)
+	sqlDB.SetMaxOpenConns(5)
+	sqlDB.SetConnMaxIdleTime(2 * time.Minute)
+	sqlDB.SetConnMaxLifetime(10 * time.Minute)
 
 	// Auto migrate models
 	err = DB.AutoMigrate(

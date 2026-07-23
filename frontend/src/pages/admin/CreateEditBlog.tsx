@@ -134,7 +134,7 @@ const CreateEditBlog = () => {
                 // For this component, I'll direct save, but we might need a fix for display if 404s occur.
 
                 // Let's prepend API base if it's just a path.
-                const apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+                const apiUrl = import.meta.env.VITE_API_BASE_URL || window.location.origin;
                 const fullUrl = url.startsWith('http') ? url : `${apiUrl}${url}`;
 
                 setFormData({ ...formData, image: fullUrl });
@@ -154,7 +154,7 @@ const CreateEditBlog = () => {
             }
             try {
                 const { url } = await api.uploadFile(file);
-                const apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+                const apiUrl = import.meta.env.VITE_API_BASE_URL || window.location.origin;
                 const fullUrl = url.startsWith('http') ? url : `${apiUrl}${url}`;
                 setFormData({ ...formData, pdf_url: fullUrl });
                 toast({ title: 'Success', description: 'PDF uploaded successfully' });

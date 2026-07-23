@@ -17,7 +17,7 @@ const BlogManagement = () => {
 
   const { data: posts, isLoading } = useQuery({
     queryKey: ['blogs', 'admin'],
-    queryFn: () => fetch(`${import.meta.env.VITE_API_BASE_URL}/blogs?all=true`).then(res => res.json())
+    queryFn: () => api.getBlogs(undefined, undefined, true)
   });
 
   const deleteMutation = useMutation({

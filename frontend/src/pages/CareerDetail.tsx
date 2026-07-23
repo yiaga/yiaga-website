@@ -18,9 +18,7 @@ const CareerDetail = () => {
         queryKey: ['job', id],
         queryFn: async () => {
             if (!id) return null;
-            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/jobs/${id}`);
-            if (!response.ok) throw new Error("Job not found");
-            return await response.json();
+            return api.getJob(id);
         },
         enabled: !!id
     });
