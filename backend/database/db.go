@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"gorm.io/driver/postgres"
+	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 
 	"yiaga-backend/models"
@@ -16,8 +17,15 @@ func Init(dsn string) {
 	var err error
 	var counts int64
 
+	isSqlite := dsn == "yiaga.db"
+
 	for counts < 5 {
-		DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+		if isSqlite {
+			DB, err = gorm.Open(sqlite.Open(dsn), &gorm.Config{})
+		} else {
+			DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+		}
+		
 		if err == nil {
 			break
 		}

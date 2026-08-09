@@ -27,3 +27,5 @@
 yiaga-backend
 main
 tmp/
+uploads/
+*.db

@@ -38,8 +38,8 @@ func main() {
 			)
 			log.Println("Using Cloud SQL socket for database connection")
 		} else {
-			dsn = "host=localhost user=yiaga password=yiagaPassword dbname=yiagadb port=5432 sslmode=disable TimeZone=Africa/Lagos"
-			log.Println("Using default local database connection string")
+			dsn = "yiaga.db"
+			log.Println("Using local sqlite database fallback")
 		}
 	}
 

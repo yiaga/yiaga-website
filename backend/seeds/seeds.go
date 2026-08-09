@@ -13,52 +13,6 @@ import (
 )
 
 func SeedData() {
-	// Seed Hero Content
-	heroSlides := []models.HeroContent{
-		{
-			Page:            "home",
-			Title:           "Strengthening Democracy in Africa",
-			TitleHighlight:  "Empowering Citizens for Good Governance",
-			Description:     "Join us in building a continent where every voice matters and every vote counts.",
-			CTAText:         "Learn More",
-			CTALink:         "/democracy",
-			SecondCTAText:   "Watch Video",
-			SecondCTALink:   "#",
-			BackgroundImage: "",
-		},
-		{
-			Page:            "home",
-			Title:           "Election Observation",
-			TitleHighlight:  "Transparency in Every Vote",
-			Description:     "Our nationwide network of observers ensures free and fair elections across Nigeria.",
-			CTAText:         "View Reports",
-			CTALink:         "/resources?category=Reports",
-			SecondCTAText:   "Get Involved",
-			SecondCTALink:   "/contact",
-			BackgroundImage: "",
-		},
-		{
-			Page:            "home",
-			Title:           "Youth Political Participation",
-			TitleHighlight:  "Ready to Run Campaign",
-			Description:     "Training the next generation of leaders to transform governance in Africa.",
-			CTAText:         "Join the Movement",
-			CTALink:         "https://readytorun.ng",
-			SecondCTAText:   "Success Stories",
-			SecondCTALink:   "https://readytorun.ng",
-			BackgroundImage: "",
-		},
-	}
-	for _, h := range heroSlides {
-		var existing models.HeroContent
-		err := database.DB.Unscoped().Where("title = ? AND page = ?", h.Title, h.Page).First(&existing).Error
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			if err := database.DB.Create(&h).Error; err != nil {
-				log.Printf("Failed to seed hero content '%s': %v\n", h.Title, err)
-			}
-		}
-	}
-
 	// Seed Announcements
 	announcements := []models.Announcement{
 		{
