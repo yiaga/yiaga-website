@@ -14,8 +14,8 @@ import (
 )
 
 func FileUploadHandler(w http.ResponseWriter, r *http.Request) {
-	// Limit max upload size (e.g., 10MB)
-	r.ParseMultipartForm(10 << 20)
+	// Limit max upload size (e.g., 25MB)
+	r.ParseMultipartForm(25 << 20)
 
 	// Get the file from the request
 	file, header, err := r.FormFile("file")

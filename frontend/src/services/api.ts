@@ -201,10 +201,11 @@ export const api = {
         return await response.json();
     },
 
-    getBlogs: async (type?: string, category?: string): Promise<BlogPost[]> => {
+    getBlogs: async (type?: string, category?: string, all?: boolean): Promise<BlogPost[]> => {
         let url = `${API_URL}/blogs?`;
         if (type) url += `type=${type}&`;
         if (category && category !== "All") url += `category=${category}&`;
+        if (all) url += `all=true&`;
 
         const response = await fetch(url);
         if (!response.ok) throw new Error("Failed to fetch blogs");

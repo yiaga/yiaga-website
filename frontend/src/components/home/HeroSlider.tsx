@@ -1,14 +1,16 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { ChevronLeft, ChevronRight, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/services/api";
 
 import heroImage1 from "@/assets/youth.jpg";
 import heroImage2 from "@/assets/youth-2.jpg";
 import heroImage3 from "@/assets/youth-1.jpg";
 
-const slides = [
+const defaultSlides = [
   {
     id: 1,
     title: "Strengthening Democracy in Africa",
@@ -18,6 +20,7 @@ const slides = [
     ctaLink: "/democracy",
     ctaSecondary: "Watch Video",
     ctaSecondaryLink: "#",
+    backgroundImage: heroImage1,
   },
   {
     id: 2,
@@ -28,6 +31,7 @@ const slides = [
     ctaLink: "/resources?category=Reports",
     ctaSecondary: "Get Involved",
     ctaSecondaryLink: "/contact",
+    backgroundImage: heroImage2,
   },
   {
     id: 3,
@@ -38,12 +42,40 @@ const slides = [
     ctaLink: "https://readytorun.ng",
     ctaSecondary: "Success Stories",
     ctaSecondaryLink: "https://readytorun.ng",
+    backgroundImage: heroImage3,
   },
 ];
 
-const images = [heroImage1, heroImage2, heroImage3];
+const defaultImages = [heroImage1, heroImage2, heroImage3];
 
 const HeroSlider = () => {
+  const { data: heroContent } = useQuery({
+    queryKey: ['heroContent', 'home'],
+    queryFn: () => api.getHeroContent('home'),
+  });
+
+  const slides = useMemo(() => {
+    return heroContent && heroContent.length > 0 
+      ? heroContent.map((slide: any) => ({
+          id: slide.ID || slide.id,
+          title: slide.title,
+          subtitle: slide.title_highlight,
+          description: slide.description,
+          cta: slide.cta_text,
+          ctaLink: slide.cta_link,
+          ctaSecondary: slide.second_cta_text,
+          ctaSecondaryLink: slide.second_cta_link,
+          backgroundImage: slide.background_image
+        }))
+      : defaultSlides;
+  }, [heroContent]);
+
+  const images = useMemo(() => {
+    return slides.map((slide: any, index: number) => 
+      slide.backgroundImage || defaultImages[index % defaultImages.length]
+    );
+  }, [slides]);
+
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
 
@@ -56,11 +88,11 @@ const HeroSlider = () => {
 
   const nextSlide = useCallback(() => {
     goToSlide((currentSlide + 1) % slides.length);
-  }, [currentSlide, goToSlide]);
+  }, [currentSlide, goToSlide, slides.length]);
 
   const prevSlide = useCallback(() => {
     goToSlide((currentSlide - 1 + slides.length) % slides.length);
-  }, [currentSlide, goToSlide]);
+  }, [currentSlide, goToSlide, slides.length]);
 
   useEffect(() => {
     const interval = setInterval(nextSlide, 6000);

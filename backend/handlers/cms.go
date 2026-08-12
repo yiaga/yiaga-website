@@ -69,7 +69,7 @@ func GetDashboardStats(w http.ResponseWriter, r *http.Request) {
 
 func HandleFileUpload(w http.ResponseWriter, r *http.Request) {
 	// maximize upload size appropriately
-	r.ParseMultipartForm(10 << 20) // 10 MB
+	r.ParseMultipartForm(25 << 20) // 25 MB
 
 	file, handler, err := r.FormFile("file")
 	if err != nil {

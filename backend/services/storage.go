@@ -14,6 +14,14 @@ import (
 func UploadFile(ctx context.Context, file io.Reader, filename string) (string, error) {
 	storageType := os.Getenv("STORAGE_TYPE")
 
+	if storageType == "" {
+		if os.Getenv("INSTANCE_CONNECTION_NAME") == "" {
+			storageType = "local"
+		} else {
+			storageType = "gcs"
+		}
+	}
+
 	if storageType == "local" {
 		return uploadToLocal(file, filename)
 	}

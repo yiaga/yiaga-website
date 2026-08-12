@@ -8,22 +8,33 @@ import { api, BlogPost } from '@/services/api';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/components/ui/use-toast';
 
-const BlogManagement = () => {
+interface BlogManagementProps {
+  contentType?: 'blog' | 'news';
+}
+
+const BlogManagement = ({ contentType = 'blog' }: BlogManagementProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  const isNewsMode = contentType === 'news';
+  const basePath = isNewsMode ? '/admin/news' : '/admin/blogs';
+  const pageTitle = isNewsMode ? 'News Management' : 'Blog Management';
+  const pageSubtitle = isNewsMode ? 'Create and manage news articles' : 'Create and manage blog posts';
+  const newButtonText = isNewsMode ? 'New Article' : 'New Post';
+
   const { data: posts, isLoading } = useQuery({
-    queryKey: ['blogs', 'admin'],
-    queryFn: () => fetch(`${import.meta.env.VITE_API_BASE_URL}/blogs?all=true`).then(res => res.json())
+    queryKey: ['blogs', 'admin', contentType],
+    queryFn: () => api.getBlogs(contentType, undefined, true)
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => api.deleteBlogPost(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['blogs'] });
+      queryClient.invalidateQueries({ queryKey: ['announcements'] });
       toast({
         title: "Success",
         description: "Post deleted successfully",
@@ -42,6 +53,7 @@ const BlogManagement = () => {
     mutationFn: (id: number) => api.duplicateBlogPost(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['blogs'] });
+      queryClient.invalidateQueries({ queryKey: ['announcements'] });
       toast({
         title: "Success",
         description: "Post duplicated",
@@ -56,16 +68,18 @@ const BlogManagement = () => {
     }
   });
 
-  const filteredPosts = posts?.filter(post =>
-    post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    post.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    post.author.toLowerCase().includes(searchTerm.toLowerCase())
-  ) || [];
-
+  const filteredPosts = posts?.filter(post => {
+    const matchesSearch = 
+      post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (post.category && post.category.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (post.author && post.author.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    const matchesType = isNewsMode ? post.type === 'news' : (post.type === 'blog' || !post.type || post.type === '');
+    return matchesSearch && matchesType;
+  }) || [];
 
   const handleEdit = (post: BlogPost) => {
-    // Navigate to edit page
-    navigate(`/admin/blogs/edit/${post.id}`);
+    navigate(`${basePath}/edit/${post.id}`);
   };
 
   const handleDelete = (post: BlogPost) => {
@@ -78,12 +92,12 @@ const BlogManagement = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-display font-bold text-foreground">Blog & News Management</h1>
-          <p className="text-muted-foreground">Create and manage blog posts and news articles</p>
+          <h1 className="text-2xl font-display font-bold text-foreground">{pageTitle}</h1>
+          <p className="text-muted-foreground">{pageSubtitle}</p>
         </div>
-        <Button className="gap-2" onClick={() => navigate('/admin/blogs/new')}>
+        <Button className="gap-2" onClick={() => navigate(`${basePath}/new`)}>
           <Plus className="w-4 h-4" />
-          New Post
+          {newButtonText}
         </Button>
       </div>
 
