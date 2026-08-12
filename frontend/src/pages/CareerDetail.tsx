@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "@/services/api";
 import PageLayout from "@/components/layout/PageLayout";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, MapPin, Clock, Briefcase, Calendar, Building, Globe } from "lucide-react";
+import { ArrowLeft, MapPin, Clock, Briefcase, Calendar, Building, Globe, Download } from "lucide-react";
 import { Loader2 } from "lucide-react";
 
 /**
@@ -22,6 +22,30 @@ const CareerDetail = () => {
         },
         enabled: !!id
     });
+
+    const handleApply = (job: any) => {
+        const link = job?.application_link?.trim();
+        if (!link) {
+            window.open(`mailto:recruitment@yiaga.org?subject=Application for ${encodeURIComponent(job?.call_for_application || '')}`, '_blank');
+            return;
+        }
+
+        const isDownloadable = /\.(pdf|docx|doc|zip)(\.pdf|\.docx)?$/i.test(link) || link.startsWith('/assets/') || link.startsWith('/uploads/');
+
+        if (isDownloadable) {
+            const a = document.createElement('a');
+            a.href = link;
+            const filename = link.split('/').pop() || 'Application-Form.pdf';
+            a.download = filename;
+            a.target = '_blank';
+            a.rel = 'noopener noreferrer';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        } else {
+            window.open(link, '_blank', 'noopener,noreferrer');
+        }
+    };
 
     if (isLoading) {
         return (
@@ -43,6 +67,8 @@ const CareerDetail = () => {
             </PageLayout>
         );
     }
+
+    const isDocument = job?.application_link && (/\.(pdf|docx|doc|zip)(\.pdf|\.docx)?$/i.test(job.application_link) || job.application_link.startsWith('/assets/'));
 
     return (
         <PageLayout>
@@ -83,7 +109,8 @@ const CareerDetail = () => {
                             </span>
                         </div>
 
-                        <Button size="lg" onClick={() => window.open(job.application_link || `mailto:recruitment@yiaga.org?subject=Application for ${job.call_for_application}`, '_blank')}>
+                        <Button size="lg" onClick={() => handleApply(job)} className="gap-2">
+                            {isDocument && <Download className="w-5 h-5" />}
                             {job.type === 'call' ? 'Apply for this Call' : 'Apply for this Position'}
                         </Button>
                     </div>
@@ -178,12 +205,14 @@ const CareerDetail = () => {
                             </ul>
 
                             <div className="mt-8 pt-6 border-t border-border">
-                                <Button className="w-full" onClick={() => window.open(job.application_link || `mailto:recruitment@yiaga.org?subject=Application for ${job.call_for_application}`, '_blank')}>
+                                <Button className="w-full gap-2" onClick={() => handleApply(job)}>
+                                    {isDocument && <Download className="w-4 h-4" />}
                                     {job.type === 'call' ? 'Apply Now' : 'Apply for Position'}
                                 </Button>
                             </div>
                         </div>
                     </div>
+
 
                 </div>
             </div>

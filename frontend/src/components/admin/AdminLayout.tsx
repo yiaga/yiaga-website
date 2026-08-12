@@ -42,9 +42,9 @@ interface NavItem {
 const navItems: NavItem[] = [
   { label: 'Dashboard', href: '/admin', icon: LayoutDashboard, roles: ['user', 'technical', 'admin'] },
   { label: 'Blog Posts', href: '/admin/blogs', icon: FileText, roles: ['technical', 'admin'] },
+  { label: 'News Management', href: '/admin/news', icon: Newspaper, roles: ['technical', 'admin'] },
   { label: 'Content', href: '/admin/content', icon: Globe, roles: ['technical', 'admin'] },
   { label: 'Resources', href: '/admin/resources', icon: Download, roles: ['technical', 'admin'] },
-  { label: 'Announcements', href: '/admin/announcements', icon: Megaphone, roles: ['technical', 'admin'] },
   { label: 'Initiatives', href: '/admin/initiatives', icon: Zap, roles: ['technical', 'admin'] },
   { label: 'Subscribers', href: '/admin/subscribers', icon: Users, roles: ['technical', 'admin'] },
 

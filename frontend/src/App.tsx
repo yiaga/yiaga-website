@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import ScrollToHash from "./components/utils/ScrollToHash";
 import Index from "./pages/Index";
@@ -86,12 +86,17 @@ const App = () => (
             <Route path="/admin/signup" element={<Signup />} />
             <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
               <Route index element={<Dashboard />} />
-              <Route path="blogs" element={<ProtectedRoute requiredRoles={['technical', 'admin']}><BlogManagement /></ProtectedRoute>} />
-              <Route path="blogs/new" element={<ProtectedRoute requiredRoles={['technical', 'admin']}><CreateEditBlog /></ProtectedRoute>} />
-              <Route path="blogs/edit/:id" element={<ProtectedRoute requiredRoles={['technical', 'admin']}><CreateEditBlog /></ProtectedRoute>} />
+              <Route path="blogs" element={<ProtectedRoute requiredRoles={['technical', 'admin']}><BlogManagement contentType="blog" /></ProtectedRoute>} />
+              <Route path="blogs/new" element={<ProtectedRoute requiredRoles={['technical', 'admin']}><CreateEditBlog contentType="blog" /></ProtectedRoute>} />
+              <Route path="blogs/edit/:id" element={<ProtectedRoute requiredRoles={['technical', 'admin']}><CreateEditBlog contentType="blog" /></ProtectedRoute>} />
+
+              <Route path="news" element={<ProtectedRoute requiredRoles={['technical', 'admin']}><BlogManagement contentType="news" /></ProtectedRoute>} />
+              <Route path="news/new" element={<ProtectedRoute requiredRoles={['technical', 'admin']}><CreateEditBlog contentType="news" /></ProtectedRoute>} />
+              <Route path="news/edit/:id" element={<ProtectedRoute requiredRoles={['technical', 'admin']}><CreateEditBlog contentType="news" /></ProtectedRoute>} />
+
               <Route path="content" element={<ProtectedRoute requiredRoles={['technical', 'admin']}><ContentManagement /></ProtectedRoute>} />
               <Route path="resources" element={<ProtectedRoute requiredRoles={['technical', 'admin']}><ResourcesManagement /></ProtectedRoute>} />
-              <Route path="announcements" element={<ProtectedRoute requiredRoles={['technical', 'admin']}><AnnouncementsManagement /></ProtectedRoute>} />
+              <Route path="announcements" element={<Navigate to="/admin/news" replace />} />
               <Route path="initiatives" element={<ProtectedRoute requiredRoles={['technical', 'admin']}><InitiativesManagement /></ProtectedRoute>} />
 
               <Route path="users" element={<ProtectedRoute requiredRoles={['admin']}><UserManagement /></ProtectedRoute>} />

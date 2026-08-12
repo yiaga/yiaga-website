@@ -20,7 +20,11 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent } from '@/components/ui/card';
 
-const CreateEditBlog = () => {
+interface CreateEditBlogProps {
+  contentType?: 'blog' | 'news';
+}
+
+const CreateEditBlog = ({ contentType }: CreateEditBlogProps) => {
     const { id } = useParams();
     const isEdit = !!id;
     const navigate = useNavigate();
@@ -29,6 +33,10 @@ const CreateEditBlog = () => {
     const queryClient = useQueryClient();
     const [showPreview, setShowPreview] = useState(false);
     const [isCheckingSlug, setIsCheckingSlug] = useState(false);
+
+    const isNewsMode = contentType === 'news' || window.location.pathname.includes('/admin/news');
+    const defaultType = isNewsMode ? 'news' : 'blog';
+    const basePath = isNewsMode ? '/admin/news' : '/admin/blogs';
 
     const [formData, setFormData] = useState({
         title: '',
@@ -39,7 +47,7 @@ const CreateEditBlog = () => {
         author: '',
         image: '',
         pdf_url: '',
-        type: 'blog',
+        type: defaultType,
         date: new Date().toISOString().split('T')[0], // Default to today
         is_draft: false,
         action_text: ''
@@ -61,8 +69,7 @@ const CreateEditBlog = () => {
                     author: post.author,
                     image: post.image,
                     pdf_url: post.pdf_url || '',
-                    type: post.type,
-                    // post.date might be "Jan 4, 2026" or YYYY-MM-DD. Convert to YYYY-MM-DD for input
+                    type: post.type || defaultType,
                     date: post.date ? new Date(post.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
                     is_draft: post.is_draft || false,
                     action_text: post.action_text || ''
@@ -77,10 +84,11 @@ const CreateEditBlog = () => {
         mutationFn: (data: any) => isEdit ? api.updateBlogPost(Number(id), data) : api.createBlogPost(data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['blogs'] });
-            addAuditLog(isEdit ? 'UPDATE_BLOG' : 'CREATE_BLOG', `${isEdit ? 'Updated' : 'Created'} blog post`);
-            toast({ title: 'Success', description: `Blog post ${isEdit ? 'updated' : 'created'} successfully` });
+            queryClient.invalidateQueries({ queryKey: ['announcements'] });
+            addAuditLog(isEdit ? 'UPDATE_BLOG' : 'CREATE_BLOG', `${isEdit ? 'Updated' : 'Created'} ${isNewsMode ? 'news article' : 'blog post'}`);
+            toast({ title: 'Success', description: `${isNewsMode ? 'News article' : 'Blog post'} ${isEdit ? 'updated' : 'created'} successfully` });
        
-            navigate('/admin/blogs');
+            navigate(basePath);
         },
         onError: (error) => {
             toast({ title: 'Error', description: String(error), variant: 'destructive' });
@@ -311,14 +319,14 @@ const CreateEditBlog = () => {
 
             {/* ── Editor Header ── */}
             <div className="flex items-center gap-4">
-                <Button variant="ghost" size="icon" onClick={() => navigate('/admin/blogs')}>
+                <Button variant="ghost" size="icon" onClick={() => navigate(basePath)}>
                     <ArrowLeft className="w-5 h-5" />
                 </Button>
                 <div>
                     <h1 className="text-2xl font-display font-bold text-foreground">
-                        {isEdit ? 'Edit Blog Post' : 'Create New Blog Post'}
+                        {isEdit ? (isNewsMode ? 'Edit News Article' : 'Edit Blog Post') : (isNewsMode ? 'Create New News Article' : 'Create New Blog Post')}
                     </h1>
-                    <p className="text-muted-foreground">{isEdit ? 'Update existing post details' : 'Add a new blog post'}</p>
+                    <p className="text-muted-foreground">{isEdit ? (isNewsMode ? 'Update existing news article details' : 'Update existing blog post details') : (isNewsMode ? 'Add a new news article' : 'Add a new blog post')}</p>
                 </div>
             </div>
 

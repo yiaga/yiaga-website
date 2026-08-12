@@ -324,6 +324,44 @@ func SeedData() {
 		}
 	}
 
+	// Seed Jobs / Call for Applications
+	jobs := []models.Job{
+		{
+			CallForApplication:        "Call for Applications: Yiaga Africa Community Organising Incubator Fund 2.0",
+			Slug:                      "call-for-applications-yiaga-africa-community-organising-incubator-fund-2-0",
+			Location:                  "Abuja, Nigeria",
+			ApplicationDeadline:       "March 31, 2026",
+			TypeOfContract:            "Call for Application",
+			Department:                "Community Organising Institute (COI)",
+			PostLevel:                 "Fellowship / Grant",
+			LanguagesRequired:         "English",
+			DurationOfInitialContract: "6 Months",
+			ApplicationLink:           "/assets/pdfs/Application-form_Community-Organizing-Incubator.docx.pdf",
+			AboutYiaga:                "Yiaga Africa is a non-profit civic organization committed to the promotion of democratic governance, human rights, and civic engagement in Africa.",
+			Background:                "The Yiaga Africa Community Organising Incubator Fund 2.0 is designed to empower young community organizers and civic leaders with financial resources, technical guidance, and capacity building support to drive democratic reform and civic participation at the grassroots level.",
+			DutiesAndResponsibilities: "Selected applicants will receive financial grants, technical mentorship, and access to Yiaga Africa's community organizing network to implement strategic civic engagement projects across their communities.",
+			Competence:                "Young civic activists, community organizers, and youth-led civil society organizations operating within Africa.",
+			HowToApply:                "Click the 'Apply for this Call' button to download the official application form (PDF/DOCX format). Fill out all required details and follow the submission guidelines outlined in the application document.",
+			IsActive:                  true,
+			Type:                      "call",
+		},
+	}
+	for _, j := range jobs {
+		var existing models.Job
+		err := database.DB.Unscoped().Where("slug = ? OR call_for_application = ?", j.Slug, j.CallForApplication).First(&existing).Error
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			if err := database.DB.Create(&j).Error; err != nil {
+				log.Printf("Failed to seed job '%s': %v\n", j.CallForApplication, err)
+			}
+		} else if err == nil {
+			j.ID = existing.ID
+			j.CreatedAt = existing.CreatedAt
+			if err := database.DB.Save(&j).Error; err != nil {
+				log.Printf("Failed to update seed job '%s': %v\n", j.CallForApplication, err)
+			}
+		}
+	}
+
 	// Seed Admin User
 	var adminUser models.User
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte("admin123"), bcrypt.DefaultCost)
@@ -338,3 +376,4 @@ func SeedData() {
 		database.DB.Create(&admin)
 	}
 }
+

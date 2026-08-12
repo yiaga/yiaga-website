@@ -54,6 +54,76 @@ func GetBlogs(w http.ResponseWriter, r *http.Request) {
 	respondJSON(w, posts)
 }
 
+// Sync helper: Ensures updates to News/Blog posts automatically reflect in Announcements
+func syncBlogPostToAnnouncement(post *models.BlogPost) {
+	if post == nil || post.Title == "" {
+		return
+	}
+
+	link := fmt.Sprintf("/blog/%s", post.Slug)
+	if post.Type == "news" {
+		link = fmt.Sprintf("/news/%s", post.Slug)
+	}
+
+	var announcement models.Announcement
+	err := database.DB.Where("link = ? OR link = ? OR title = ?", fmt.Sprintf("/blog/%s", post.Slug), fmt.Sprintf("/news/%s", post.Slug), post.Title).First(&announcement).Error
+
+	status := "published"
+	if post.IsDraft {
+		status = "draft"
+	}
+
+	description := post.Excerpt
+	if description == "" {
+		cleanContent := regexp.MustCompile("<[^>]*>").ReplaceAllString(post.Content, "")
+		if len(cleanContent) > 200 {
+			description = cleanContent[:197] + "..."
+		} else {
+			description = cleanContent
+		}
+	}
+
+	dateStr := post.Date
+	if dateStr == "" {
+		dateStr = post.PublishedAt.Format("Jan 2, 2006")
+	}
+
+	if err != nil {
+		if post.Type == "news" || post.IsFeatured || !post.IsDraft {
+			newAnn := models.Announcement{
+				Title:       post.Title,
+				Description: description,
+				Date:        dateStr,
+				Link:        link,
+				Image:       post.Image,
+				Status:      status,
+				PublishedAt: post.PublishedAt,
+			}
+			if err := database.DB.Create(&newAnn).Error; err != nil {
+				log.Printf("Failed to create announcement sync for post '%s': %v\n", post.Title, err)
+			}
+		}
+	} else {
+		announcement.Title = post.Title
+		announcement.Description = description
+		announcement.Date = dateStr
+		announcement.Link = link
+		announcement.Image = post.Image
+		announcement.Status = status
+		announcement.PublishedAt = post.PublishedAt
+		if err := database.DB.Save(&announcement).Error; err != nil {
+			log.Printf("Failed to update announcement sync for post '%s': %v\n", post.Title, err)
+		}
+	}
+}
+
+func deleteBlogPostAnnouncement(post *models.BlogPost) {
+	if post == nil {
+		return
+	}
+	database.DB.Where("link = ? OR link = ? OR title = ?", fmt.Sprintf("/blog/%s", post.Slug), fmt.Sprintf("/news/%s", post.Slug), post.Title).Delete(&models.Announcement{})
+}
+
 // BackfillBlogPosts handles legacy data cleanup (PublishedAt date and clean slugs) on startup
 func BackfillBlogPosts() {
 	var posts []models.BlogPost
@@ -105,6 +175,9 @@ func BackfillBlogPosts() {
 				log.Printf("Failed to backfill blog post '%s': %v\n", posts[i].Title, err)
 			}
 		}
+
+		// Ensure announcements reflect latest published news items
+		syncBlogPostToAnnouncement(&posts[i])
 	}
 }
 
@@ -176,6 +249,10 @@ func CreateBlogPost(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	// Auto-reflect news/blog updates to announcements
+	syncBlogPostToAnnouncement(&post)
+
 	respondJSON(w, post)
 }
 
@@ -207,9 +284,6 @@ func UpdateBlogPost(w http.ResponseWriter, r *http.Request) {
 	if input.Slug == "" || input.Title != post.Title {
 		post.Slug = generateUniqueSlug(input.Title)
 	} else if !strings.Contains(post.Slug, "-") || len(post.Slug) < 10 {
-		// Safety: if the existing slug looks too short or lacks a timestamp, 
-		// and we are updating the post, give it a unique one.
-		// However, for stability, we usually keep it if title hasn't changed.
 		post.Slug = input.Slug
 	} else {
 		post.Slug = input.Slug
@@ -233,11 +307,20 @@ func UpdateBlogPost(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	// Auto-reflect news/blog updates to announcements
+	syncBlogPostToAnnouncement(&post)
+
 	respondJSON(w, post)
 }
 
 func DeleteBlogPost(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
+	var post models.BlogPost
+	if err := database.DB.First(&post, id).Error; err == nil {
+		deleteBlogPostAnnouncement(&post)
+	}
+
 	if err := database.DB.Delete(&models.BlogPost{}, id).Error; err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -267,5 +350,9 @@ func DuplicateBlogPost(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	syncBlogPostToAnnouncement(&newPost)
+
 	respondJSON(w, newPost)
 }
+
