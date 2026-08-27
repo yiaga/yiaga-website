@@ -362,6 +362,54 @@ func SeedData() {
 		}
 	}
 
+	// Seed Hero Content for home page (3 default slides)
+	var heroCount int64
+	database.DB.Model(&models.HeroContent{}).Where("page = ?", "home").Count(&heroCount)
+	if heroCount < 3 {
+		heroSlides := []models.HeroContent{
+			{
+				Page:            "home",
+				Title:           "Strengthening Democracy in Africa",
+				TitleHighlight:  "Empowering Citizens for Good Governance",
+				Description:     "Join us in building a continent where every voice matters and every vote counts.",
+				CTAText:         "Learn More",
+				CTALink:         "/democracy",
+				SecondCTAText:   "Watch Video",
+				SecondCTALink:   "#",
+				BackgroundImage: "/assets/youth.jpg",
+			},
+			{
+				Page:            "home",
+				Title:           "Election Observation",
+				TitleHighlight:  "Transparency in Every Vote",
+				Description:     "Our nationwide network of observers ensures free and fair elections across Nigeria.",
+				CTAText:         "View Reports",
+				CTALink:         "/resources?category=Reports",
+				SecondCTAText:   "Get Involved",
+				SecondCTALink:   "/contact",
+				BackgroundImage: "/assets/youth-2.jpg",
+			},
+			{
+				Page:            "home",
+				Title:           "Youth Political Participation",
+				TitleHighlight:  "Ready to Run Campaign",
+				Description:     "Training the next generation of leaders to transform governance in Africa.",
+				CTAText:         "Join the Movement",
+				CTALink:         "https://readytorun.ng",
+				SecondCTAText:   "Success Stories",
+				SecondCTALink:   "https://readytorun.ng",
+				BackgroundImage: "/assets/youth-1.jpg",
+			},
+		}
+		for _, hs := range heroSlides {
+			var existing models.HeroContent
+			err := database.DB.Where("page = ? AND title = ?", hs.Page, hs.Title).First(&existing).Error
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				database.DB.Create(&hs)
+			}
+		}
+	}
+
 	// Seed Admin User
 	var adminUser models.User
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte("admin123"), bcrypt.DefaultCost)

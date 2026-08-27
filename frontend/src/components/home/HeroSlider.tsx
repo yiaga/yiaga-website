@@ -55,19 +55,31 @@ const HeroSlider = () => {
   });
 
   const slides = useMemo(() => {
-    return heroContent && heroContent.length > 0 
-      ? heroContent.map((slide: any) => ({
-          id: slide.ID || slide.id,
-          title: slide.title,
-          subtitle: slide.title_highlight,
-          description: slide.description,
-          cta: slide.cta_text,
-          ctaLink: slide.cta_link,
-          ctaSecondary: slide.second_cta_text,
-          ctaSecondaryLink: slide.second_cta_link,
-          backgroundImage: slide.background_image
-        }))
-      : defaultSlides;
+    if (!heroContent || heroContent.length === 0) {
+      return defaultSlides;
+    }
+
+    const mapped = heroContent.map((slide: any) => ({
+      id: slide.ID || slide.id,
+      title: slide.title,
+      subtitle: slide.title_highlight,
+      description: slide.description,
+      cta: slide.cta_text,
+      ctaLink: slide.cta_link,
+      ctaSecondary: slide.second_cta_text,
+      ctaSecondaryLink: slide.second_cta_link,
+      backgroundImage: slide.background_image
+    }));
+
+    // Guarantee exactly 3 slides at all times (nothing more, nothing less)
+    if (mapped.length < 3) {
+      return [
+        ...mapped,
+        ...defaultSlides.slice(mapped.length, 3)
+      ];
+    }
+
+    return mapped.slice(0, 3);
   }, [heroContent]);
 
   const images = useMemo(() => {

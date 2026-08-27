@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Megaphone, Calendar, ArrowRight, Loader2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -16,8 +17,8 @@ const AnnouncementSlider = () => {
 
   const displayedAnnouncements = useMemo(() => {
     if (announcements.length === 0) return [];
-    const shuffled = [...announcements].sort(() => Math.random() - 0.5);
-    return shuffled.slice(0, 5);
+    // Display the latest 5 news items in strict chronological order (latest is #1)
+    return announcements.slice(0, 5);
   }, [announcements]);
 
   // Reset slide index when data changes
@@ -71,11 +72,14 @@ const AnnouncementSlider = () => {
           <div className="relative">
             <div className="grid lg:grid-cols-2 gap-8 items-center">
               {/* Image Column */}
-              <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-lg">
+              <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-lg bg-muted">
                 <img
-                  src={current.image}
+                  src={current.image || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=1200&q=80'}
                   alt={current.title}
                   className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=1200&q=80';
+                  }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-foreground/40 to-transparent pointer-events-none" />
 
@@ -103,12 +107,21 @@ const AnnouncementSlider = () => {
                 </p>
 
                 {current.link ? (
-                  <a href={current.link} target="_blank" rel="noopener noreferrer">
-                    <Button className="group bg-primary hover:bg-primary/90 text-primary-foreground">
-                      Read More
-                      <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
-                    </Button>
-                  </a>
+                  current.link.startsWith('/') ? (
+                    <Link to={current.link}>
+                      <Button className="group bg-primary hover:bg-primary/90 text-primary-foreground">
+                        Read More
+                        <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
+                      </Button>
+                    </Link>
+                  ) : (
+                    <a href={current.link} target="_blank" rel="noopener noreferrer">
+                      <Button className="group bg-primary hover:bg-primary/90 text-primary-foreground">
+                        Read More
+                        <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
+                      </Button>
+                    </a>
+                  )
                 ) : (
                   <Button className="group bg-primary hover:bg-primary/90 text-primary-foreground">
                     Read More

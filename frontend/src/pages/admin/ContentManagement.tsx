@@ -204,24 +204,31 @@ const ContentManagement = () => {
         <TabsContent value="hero">
           <div className="bg-card rounded-2xl border border-border p-6 space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-display font-bold text-foreground">Hero Slides</h2>
-              <Button onClick={() => {
-                setHeroForm({
-                  page: 'home',
-                  title: '',
-                  title_highlight: '',
-                  description: '',
-                  cta_text: '',
-                  cta_link: '',
-                  second_cta_text: '',
-                  second_cta_link: '',
-                  background_image: ''
-                });
-                setIsEditingHero(false);
-                setIsHeroDialogOpen(true);
-              }} className="gap-2">
+              <div>
+                <h2 className="text-lg font-display font-bold text-foreground">Hero Slides</h2>
+                <p className="text-xs text-muted-foreground">Maximum 3 hero slides allowed for the home page (3 of 3 max).</p>
+              </div>
+              <Button 
+                disabled={Boolean(heroContent && heroContent.length >= 3)}
+                onClick={() => {
+                  setHeroForm({
+                    page: 'home',
+                    title: '',
+                    title_highlight: '',
+                    description: '',
+                    cta_text: '',
+                    cta_link: '',
+                    second_cta_text: '',
+                    second_cta_link: '',
+                    background_image: ''
+                  });
+                  setIsEditingHero(false);
+                  setIsHeroDialogOpen(true);
+                }} 
+                className="gap-2"
+              >
                 <Plus className="w-4 h-4" />
-                Add Slide
+                {heroContent && heroContent.length >= 3 ? 'Max 3 Slides Reached' : 'Add Slide'}
               </Button>
             </div>
 

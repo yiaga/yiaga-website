@@ -2,11 +2,12 @@ package handlers
 
 import (
 	"encoding/json"
-	"net/http"
-	"strconv"
-	"time"
 	"fmt"
-  "strings"
+	"net/http"
+	"regexp"
+	"strconv"
+	"strings"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 
@@ -17,9 +18,48 @@ import (
 // --- Announcements ---
 
 func GetAnnouncements(w http.ResponseWriter, r *http.Request) {
+	var newsPosts []models.BlogPost
+	// Fetch latest 5 published news items
+	err := database.DB.Where("type = ? AND is_draft = ?", "news", false).
+		Order("published_at desc, id desc").
+		Limit(5).
+		Find(&newsPosts).Error
+
+	if err == nil && len(newsPosts) > 0 {
+		var announcements []models.Announcement
+		for _, post := range newsPosts {
+			link := fmt.Sprintf("/news/%s", post.Slug)
+			description := post.Excerpt
+			if description == "" {
+				cleanContent := regexp.MustCompile("<[^>]*>").ReplaceAllString(post.Content, "")
+				if len(cleanContent) > 200 {
+					description = cleanContent[:197] + "..."
+				} else {
+					description = cleanContent
+				}
+			}
+			dateStr := post.Date
+			if dateStr == "" {
+				dateStr = post.PublishedAt.Format("Jan 2, 2006")
+			}
+			announcements = append(announcements, models.Announcement{
+				ID:          post.ID,
+				Title:       post.Title,
+				Description: description,
+				Date:        dateStr,
+				Link:        link,
+				Image:       post.Image,
+				Status:      "published",
+				PublishedAt: post.PublishedAt,
+			})
+		}
+		respondJSON(w, announcements)
+		return
+	}
+
+	// Fallback to Announcement table if no news items found
 	var announcements []models.Announcement
-	// Only return published announcements
-	result := database.DB.Where("status = ?", "published").Order("published_at desc").Find(&announcements)
+	result := database.DB.Where("status = ?", "published").Order("published_at desc").Limit(5).Find(&announcements)
 	if result.Error != nil {
 		http.Error(w, result.Error.Error(), http.StatusInternalServerError)
 		return
