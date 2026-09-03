@@ -170,85 +170,84 @@ const HeroSlider = () => {
 
       {/* Content - Top Left aligned */}
       <div className="relative z-40 container mx-auto px-4 pt-8 lg:pt-16">
-        <div className="max-w-xl">
-          {slides.map((slide, index) => (
-            <div
-              key={slide.id}
-              className={cn(
-                "transition-all duration-700 ease-out",
-                index === currentSlide
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 translate-y-8 pointer-events-none absolute"
-              )}
-            >
-              <span
-                className={cn(
-                  "inline-block px-4 py-2 bg-secondary/20 text-secondary rounded-full text-sm font-medium mb-4 backdrop-blur-sm border border-secondary/30",
-                  index === currentSlide && "animate-fade-in"
-                )}
-                style={{ animationDelay: "0.1s" }}
-              >
-                {slide.subtitle}
-              </span>
-              <h1
-                className={cn(
-                  "text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-display font-bold text-primary-foreground mb-4 leading-tight text-left",
-                  index === currentSlide && "animate-slide-up"
-                )}
-                style={{ animationDelay: "0.2s" }}
-              >
-                {slide.title}
-              </h1>
-              <p
-                className={cn(
-                  "text-base md:text-lg lg:text-xl text-primary-foreground/90 mb-6 max-w-lg leading-relaxed text-left",
-                  index === currentSlide && "animate-slide-up"
-                )}
-                style={{ animationDelay: "0.3s" }}
-              >
-                {slide.description}
-              </p>
+        <div className="max-w-xl relative min-h-[360px]">
+          {slides.map((slide, index) => {
+            const isActive = index === currentSlide;
+            return (
               <div
+                key={slide.id}
                 className={cn(
-                  "flex flex-wrap gap-4",
-                  index === currentSlide && "animate-slide-up"
+                  "transition-all duration-700 ease-out",
+                  isActive
+                    ? "opacity-100 translate-x-0 relative z-10"
+                    : "opacity-0 -translate-x-8 pointer-events-none absolute inset-0 z-0"
                 )}
-                style={{ animationDelay: "0.4s" }}
               >
-                {slide.ctaLink.startsWith('http') ? (
-                  <a href={slide.ctaLink} target="_blank" rel="noopener noreferrer">
-                    <Button variant="hero" size="xl">
-                      {slide.cta}
-                    </Button>
-                  </a>
-                ) : (
-                  <Link to={slide.ctaLink}>
-                    <Button variant="hero" size="xl">
-                      {slide.cta}
-                    </Button>
-                  </Link>
-                )}
+                <span
+                  className={cn(
+                    "inline-block px-4 py-2 bg-secondary/20 text-secondary rounded-full text-sm font-medium mb-4 backdrop-blur-sm border border-secondary/30 transition-all duration-500",
+                    isActive ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+                  )}
+                >
+                  {slide.subtitle}
+                </span>
+                <h1
+                  className={cn(
+                    "text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-display font-bold text-primary-foreground mb-4 leading-tight text-left transition-all duration-500 delay-100",
+                    isActive ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+                  )}
+                >
+                  {slide.title}
+                </h1>
+                <p
+                  className={cn(
+                    "text-base md:text-lg lg:text-xl text-primary-foreground/90 mb-6 max-w-lg leading-relaxed text-left transition-all duration-500 delay-200",
+                    isActive ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+                  )}
+                >
+                  {slide.description}
+                </p>
+                <div
+                  className={cn(
+                    "flex flex-wrap gap-4 transition-all duration-500 delay-300",
+                    isActive ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+                  )}
+                >
+                  {slide.ctaLink.startsWith('http') ? (
+                    <a href={slide.ctaLink} target="_blank" rel="noopener noreferrer">
+                      <Button variant="hero" size="xl">
+                        {slide.cta}
+                      </Button>
+                    </a>
+                  ) : (
+                    <Link to={slide.ctaLink}>
+                      <Button variant="hero" size="xl">
+                        {slide.cta}
+                      </Button>
+                    </Link>
+                  )}
 
-                {slide.ctaSecondaryLink.startsWith('http') ? (
-                  <a href={slide.ctaSecondaryLink} target="_blank" rel="noopener noreferrer">
-                    <Button variant="heroOutline" size="xl">
-                      <Play className="w-5 h-5" />
-                      {slide.ctaSecondary}
-                    </Button>
-                  </a>
-                ) : (
-                  <Link to={slide.ctaSecondaryLink}>
-                    <Button variant="heroOutline" size="xl">
-                      {slide.ctaSecondaryLink === '#' ? (
+                  {slide.ctaSecondaryLink.startsWith('http') ? (
+                    <a href={slide.ctaSecondaryLink} target="_blank" rel="noopener noreferrer">
+                      <Button variant="heroOutline" size="xl">
                         <Play className="w-5 h-5" />
-                      ) : null}
-                      {slide.ctaSecondary}
-                    </Button>
-                  </Link>
-                )}
+                        {slide.ctaSecondary}
+                      </Button>
+                    </a>
+                  ) : (
+                    <Link to={slide.ctaSecondaryLink}>
+                      <Button variant="heroOutline" size="xl">
+                        {slide.ctaSecondaryLink === '#' ? (
+                          <Play className="w-5 h-5" />
+                        ) : null}
+                        {slide.ctaSecondary}
+                      </Button>
+                    </Link>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 

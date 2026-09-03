@@ -68,99 +68,111 @@ const AnnouncementSlider = () => {
           <div className="flex justify-center items-center py-12 text-muted-foreground">
             <p>No recent announcements available.</p>
           </div>
-        ) : current ? (
-          <div className="relative">
-            <div className="grid lg:grid-cols-2 gap-8 items-center">
-              {/* Image Column */}
-              <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-lg bg-muted">
-                <img
-                  src={current.image || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=1200&q=80'}
-                  alt={current.title}
-                  className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=1200&q=80';
-                  }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-foreground/40 to-transparent pointer-events-none" />
+        ) : displayedAnnouncements.length > 0 ? (
+          <div className="relative overflow-hidden">
+            <div
+              className="flex transition-transform duration-700 ease-in-out"
+              style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+            >
+              {displayedAnnouncements.map((item, index) => (
+                <div key={item.id || index} className="w-full flex-shrink-0 min-w-full px-2">
+                  <div className="grid lg:grid-cols-2 gap-8 items-center">
+                    {/* Image Column */}
+                    <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-lg bg-muted">
+                      <img
+                        src={item.image || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=1200&q=80'}
+                        alt={item.title}
+                        className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=1200&q=80';
+                        }}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-foreground/40 to-transparent pointer-events-none" />
 
-                {/* Slide Counter */}
-                <div className="absolute bottom-4 left-4 bg-background/90 backdrop-blur-sm rounded-full px-4 py-2 flex items-center gap-2">
-                  <span className="text-2xl font-bold text-primary">{String(currentSlide + 1).padStart(2, '0')}</span>
-                  <span className="text-muted-foreground">/</span>
-                  <span className="text-muted-foreground">{String(displayedAnnouncements.length).padStart(2, '0')}</span>
+                      {/* Slide Counter */}
+                      <div className="absolute bottom-4 left-4 bg-background/90 backdrop-blur-sm rounded-full px-4 py-2 flex items-center gap-2">
+                        <span className="text-2xl font-bold text-primary">{String(index + 1).padStart(2, '0')}</span>
+                        <span className="text-muted-foreground">/</span>
+                        <span className="text-muted-foreground">{String(displayedAnnouncements.length).padStart(2, '0')}</span>
+                      </div>
+                    </div>
+
+                    {/* Content Column */}
+                    <div className="space-y-6">
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <Calendar className="w-4 h-4" />
+                        <span className="text-sm">{item.date}</span>
+                      </div>
+
+                      <h3 className="text-2xl lg:text-3xl font-display font-bold text-foreground leading-tight">
+                        {item.title}
+                      </h3>
+
+                      <p className="text-muted-foreground leading-relaxed text-lg">
+                        {item.description}
+                      </p>
+
+                      {item.link ? (
+                        item.link.startsWith('/') ? (
+                          <Link to={item.link}>
+                            <Button className="group bg-primary hover:bg-primary/90 text-primary-foreground">
+                              Read More
+                              <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
+                            </Button>
+                          </Link>
+                        ) : (
+                          <a href={item.link} target="_blank" rel="noopener noreferrer">
+                            <Button className="group bg-primary hover:bg-primary/90 text-primary-foreground">
+                              Read More
+                              <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
+                            </Button>
+                          </a>
+                        )
+                      ) : (
+                        <Button className="group bg-primary hover:bg-primary/90 text-primary-foreground">
+                          Read More
+                          <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
+                        </Button>
+                      )}
+                    </div>
+                  </div>
                 </div>
+              ))}
+            </div>
+
+            {/* Navigation & Dots Controls */}
+            <div className="flex items-center gap-4 pt-6 justify-end">
+              <div className="flex gap-2">
+                <button
+                  onClick={prevSlide}
+                  className="p-2 rounded-full border border-border hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors"
+                  aria-label="Previous announcement"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={nextSlide}
+                  className="p-2 rounded-full border border-border hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors"
+                  aria-label="Next announcement"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
               </div>
 
-              {/* Content Column */}
-              <div className="space-y-6">
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <Calendar className="w-4 h-4" />
-                  <span className="text-sm">{current.date}</span>
-                </div>
-
-                <h3 className="text-2xl lg:text-3xl font-display font-bold text-foreground leading-tight">
-                  {current.title}
-                </h3>
-
-                <p className="text-muted-foreground leading-relaxed text-lg">
-                  {current.description}
-                </p>
-
-                {current.link ? (
-                  current.link.startsWith('/') ? (
-                    <Link to={current.link}>
-                      <Button className="group bg-primary hover:bg-primary/90 text-primary-foreground">
-                        Read More
-                        <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
-                      </Button>
-                    </Link>
-                  ) : (
-                    <a href={current.link} target="_blank" rel="noopener noreferrer">
-                      <Button className="group bg-primary hover:bg-primary/90 text-primary-foreground">
-                        Read More
-                        <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
-                      </Button>
-                    </a>
-                  )
-                ) : (
-                  <Button className="group bg-primary hover:bg-primary/90 text-primary-foreground">
-                    Read More
-                    <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
-                  </Button>
-                )}
-
-                {/* Navigation & Dots */}
-                <div className="flex items-center gap-4 pt-4">
-                  <div className="flex gap-2">
-                    <button
-                      onClick={prevSlide}
-                      className="p-2 rounded-full border border-border hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors"
-                    >
-                      <ChevronLeft className="w-5 h-5" />
-                    </button>
-                    <button
-                      onClick={nextSlide}
-                      className="p-2 rounded-full border border-border hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors"
-                    >
-                      <ChevronRight className="w-5 h-5" />
-                    </button>
-                  </div>
-
-                  <div className="flex gap-2">
-                    {displayedAnnouncements.map((_, index) => (
-                      <button
-                        key={index}
-                        onClick={() => setCurrentSlide(index)}
-                        className={cn(
-                          "h-2 rounded-full transition-all duration-300",
-                          index === currentSlide
-                            ? "w-8 bg-primary"
-                            : "w-2 bg-border hover:bg-muted-foreground"
-                        )}
-                      />
-                    ))}
-                  </div>
-                </div>
+              <div className="flex gap-2">
+                {displayedAnnouncements.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentSlide(index)}
+                    className={cn(
+                      "h-2 rounded-full transition-all duration-300",
+                      index === currentSlide
+                        ? "w-8 bg-primary"
+                        : "w-2 bg-border hover:bg-muted-foreground"
+                    )}
+                    aria-label={`Go to announcement slide ${index + 1}`}
+                  />
+                ))}
               </div>
             </div>
           </div>
