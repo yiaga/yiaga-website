@@ -6,9 +6,9 @@ import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/services/api";
 
-import heroImage1 from "@/assets/youth.jpg";
-import heroImage2 from "@/assets/youth-2.jpg";
-import heroImage3 from "@/assets/youth-1.jpg";
+import heroImage1 from "@/assets/democracy.jpg";
+import heroImage2 from "@/assets/observe.jpg";
+import heroImage3 from "@/assets/youth-p.jpg";
 
 const defaultSlides = [
   {
@@ -83,7 +83,7 @@ const HeroSlider = () => {
   }, [heroContent]);
 
   const images = useMemo(() => {
-    return slides.map((slide: any, index: number) => 
+    return slides.map((slide: any, index: number) =>
       slide.backgroundImage || defaultImages[index % defaultImages.length]
     );
   }, [slides]);
